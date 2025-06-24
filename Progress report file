@@ -5,6 +5,7 @@ INTERACTIVE FLOORPLAN
 - hover function needs to be better
 - info showing on the bottom needs to show on the side i.e basic ui changes
 - need to coonect with MongoDB so that actual item show instead of dummy
+- has data hardcoded for the vertices/faces, need to connect to DB
 
 LAUNCH PAGE
 - AI chat box needs to be integrated in the section
