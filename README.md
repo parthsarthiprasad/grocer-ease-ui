@@ -1,6 +1,7 @@
 # grocer-ease-ui
 
 Front end of a smart shopping assistant - lets a user talk to a trained smart AI helping them navigate through stores, find their items with ease, recommend stores based on their item preferance and distance, an interactive and fun experience
+Made in collaboration with friends working on different areas of this idea 
 
 
 
