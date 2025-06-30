@@ -3,7 +3,7 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import '../styles/sidebar.css';
 
-const Sidebar = ({ userType = 'customer', onLogout }) => {
+const Sidebar = ({ userType = 'customer', onLogout, onChatClick }) => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -13,6 +13,13 @@ const Sidebar = ({ userType = 'customer', onLogout }) => {
     navigate('/');
   };
 
+  const handleChatBotClick = (e) => {
+    e.preventDefault();
+    if (onChatClick) {
+      onChatClick();
+    }
+  };
+
   return (
     <nav className="sidebar">
       <Link to="/" className="logo">
@@ -20,10 +27,10 @@ const Sidebar = ({ userType = 'customer', onLogout }) => {
         <span>Grocer-ease</span>
       </Link>
       <div className="nav-links">
-        <Link to="/" className="nav-btn">
+        <a href="#" className="nav-btn" onClick={handleChatBotClick}>
           <i className="fas fa-robot"></i>
           <span>Chat Bot</span>
-        </Link>
+        </a>
         <Link to="/" className="nav-btn">
           <i className="fas fa-user"></i>
           <span>Login</span>

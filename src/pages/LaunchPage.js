@@ -1,14 +1,16 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import Sidebar from '../components/Sidebar';
 import Hero from '../components/Hero';
 import Features from '../components/Features';
 import StoreSelection from '../components/StoreSelection';
+import ChatModal from '../components/ChatModal';
 
 const LaunchPage = () => {
+  const [isChatModalOpen, setIsChatModalOpen] = useState(false);
+
   const handleChatClick = () => {
-    console.log('Opening chat modal...');
-    // Implement chat modal logic
+    setIsChatModalOpen(true);
   };
 
   const handleStoreClick = () => {
@@ -25,7 +27,7 @@ const LaunchPage = () => {
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh' }}>
-      <Sidebar userType="customer" />
+      <Sidebar userType="customer" onChatClick={handleChatClick} />
       <div style={{ flex: 1, marginLeft: '250px', display: 'flex', flexDirection: 'column' }}>
         <Hero
           title="Enhanced Shopping Experience"
@@ -36,6 +38,10 @@ const LaunchPage = () => {
         <Features />
         <StoreSelection onStoreSelect={handleStoreSelect} />
       </div>
+      <ChatModal 
+        isOpen={isChatModalOpen} 
+        onClose={() => setIsChatModalOpen(false)} 
+      />
     </div>
   );
 };
