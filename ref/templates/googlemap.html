@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}Store Locator - Grocer-Ease{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">
+                        <i class="fas fa-globe me-2"></i>Store Locator
+                    </h5>
+                </div>
+                <div class="card-body text-center py-5">
+                    <div class="mb-4">
+                        <i class="fas fa-map-marker-alt fa-5x text-warning mb-3"></i>
+                    </div>
+                    
+                    <h3 class="text-primary mb-4">Expanding Soon!</h3>
+                    
+                    <div class="alert alert-info">
+                        <h5 class="alert-heading">
+                            <i class="fas fa-info-circle me-2"></i>Service Update
+                        </h5>
+                        <p class="mb-3">
+                            Sorry, no registered stores within 100 miles of you.
+                        </p>
+                        <p class="mb-0">
+                            We're coming to your nearby stores soon! Stay tuned for updates.
+                        </p>
+                    </div>
+                    
+                    <div class="row mt-5">
+                        <div class="col-md-4">
+                            <div class="text-center">
+                                <i class="fas fa-clock fa-2x text-primary mb-3"></i>
+                                <h6>Coming Soon</h6>
+                                <p class="text-muted small">New locations opening in Q2 2025</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center">
+                                <i class="fas fa-bell fa-2x text-success mb-3"></i>
+                                <h6>Get Notified</h6>
+                                <p class="text-muted small">Sign up for location updates</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center">
+                                <i class="fas fa-truck fa-2x text-info mb-3"></i>
+                                <h6>Online Delivery</h6>
+                                <p class="text-muted small">Available in select areas</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <a href="{{ url_for('chatbot') }}" class="btn btn-primary me-3">
+                            <i class="fas fa-shopping-cart me-2"></i>Start Shopping Online
+                        </a>
+                        <a href="{{ url_for('floormap') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-map me-2"></i>Explore Store Layout
+                        </a>
+                    </div>
+                    
+                    <div class="mt-5 pt-4 border-top">
+                        <h6 class="text-muted">Contact Information</h6>
+                        <p class="mb-1">
+                            <i class="fas fa-phone me-2"></i>Customer Service: 1-800-GROCERY
+                        </p>
+                        <p class="mb-1">
+                            <i class="fas fa-envelope me-2"></i>Email: support@grocer-ease.com
+                        </p>
+                        <p class="mb-0">
+                            <i class="fas fa-clock me-2"></i>Hours: Mon-Sun 7AM-11PM
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
