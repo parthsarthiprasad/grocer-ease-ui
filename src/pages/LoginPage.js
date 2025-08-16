@@ -18,8 +18,8 @@ const LoginPage = () => {
 	return (
 		<div className="container py-5">
 			<div className="row justify-content-center">
-				<div className="col-md-6 col-lg-4">
-					<div className="card shadow">
+				<div className="col-sm-10 col-md-8 col-lg-5 col-xl-4">
+					<div className="card shadow-sm">
 						<div className="card-header bg-primary text-white text-center">
 							<h4 className="mb-0">
 								<i className="fas fa-sign-in-alt me-2"></i>Login

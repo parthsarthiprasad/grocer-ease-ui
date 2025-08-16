@@ -35,7 +35,8 @@
     color: #a9d6e5;
 }
 
-.container {
+/* SCOPE: only floorplan page container */
+.floorplan-page .container {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
@@ -64,7 +65,8 @@
     flex-wrap: wrap;
 }
 
-.btn {
+/* SCOPE: use .fp-btn, do not override .btn from Bootstrap */
+.fp-btn {
     background: rgba(67, 97, 238, 0.2);
     color: #4cc9f0;
     border: 1px solid rgba(76, 201, 240, 0.3);
@@ -76,12 +78,12 @@
     transition: all 0.3s ease;
 }
 
-.btn:hover {
+.fp-btn:hover {
     background: rgba(76, 201, 240, 0.3);
     transform: translateY(-2px);
 }
 
-.btn.active {
+.fp-btn.active {
     background: rgba(76, 201, 240, 0.4);
     box-shadow: 0 0 15px rgba(76, 201, 240, 0.3);
 }
@@ -155,9 +157,7 @@
     font-size: 1.2rem;
 }
 
-.instructions ul {
-    padding-left: 20px;
-}
+.instructions ul { padding-left: 20px; }
 
 .instructions li {
     margin-bottom: 8px;
@@ -184,22 +184,13 @@
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.data-label {
-    font-weight: 600;
-    color: #90e0ef;
-}
-
-.data-value {
-    color: #caf0f8;
-}
+.data-label { font-weight: 600; color: #90e0ef; }
+.data-value { color: #caf0f8; }
 
 @media (max-width: 900px) {
-    .container {
+    .floorplan-page .container {
         flex-direction: column;
         align-items: center;
     }
-    
-    .info-panel {
-        max-width: 100%;
-    }
+    .info-panel { max-width: 100%; }
 }

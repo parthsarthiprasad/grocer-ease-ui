@@ -20,8 +20,8 @@ const RegisterPage = () => {
 	return (
 		<div className="container py-5">
 			<div className="row justify-content-center">
-				<div className="col-md-6 col-lg-4">
-					<div className="card shadow">
+				<div className="col-sm-10 col-md-8 col-lg-5 col-xl-4">
+					<div className="card shadow-sm">
 						<div className="card-header bg-success text-white text-center">
 							<h4 className="mb-0">
 								<i className="fas fa-user-plus me-2"></i>Create Account
@@ -32,29 +32,21 @@ const RegisterPage = () => {
 								<div className="mb-3">
 									<label className="form-label">Username</label>
 									<div className="input-group">
-										<span className="input-group-text">
-											<i className="fas fa-user"></i>
-										</span>
+										<span className="input-group-text"><i className="fas fa-user"></i></span>
 										<input className="form-control" value={username} onChange={(e) => setUsername(e.target.value)} required />
 									</div>
 								</div>
-
 								<div className="mb-3">
 									<label className="form-label">Email</label>
 									<div className="input-group">
-										<span className="input-group-text">
-											<i className="fas fa-envelope"></i>
-										</span>
+										<span className="input-group-text"><i className="fas fa-envelope"></i></span>
 										<input type="email" className="form-control" value={email} onChange={(e) => setEmail(e.target.value)} required />
 									</div>
 								</div>
-
 								<div className="mb-3">
 									<label className="form-label">Password</label>
 									<div className="input-group">
-										<span className="input-group-text">
-											<i className="fas fa-lock"></i>
-										</span>
+										<span className="input-group-text"><i className="fas fa-lock"></i></span>
 										<input type="password" className="form-control" value={password} onChange={(e) => setPassword(e.target.value)} required />
 									</div>
 								</div>
