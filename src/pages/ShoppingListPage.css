@@ -1,0 +1,92 @@
+.shopping-list-page {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.shopping-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.shopping-list-title {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+}
+
+.shopping-list-container {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+}
+
+.shopping-list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.shopping-list-item:last-child {
+  border-bottom: none;
+}
+
+.item-name {
+  font-weight: 500;
+  color: #333;
+}
+
+.item-quantity {
+  color: #666;
+  font-size: 14px;
+}
+
+.item-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.add-item-form {
+  margin-top: 20px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+  color: #333;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.add-item-button {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.add-item-button:hover {
+  background: #0056b3;
+} 
