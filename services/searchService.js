@@ -4,8 +4,8 @@
  */
 
 class SearchService {
-  constructor(baseURL = 'http://localhost:8000') {
-    this.baseURL = baseURL;
+  constructor(baseURL = null) {
+    this.baseURL = baseURL || (typeof process !== "undefined" && process.env && process.env.REACT_APP_SEARCH_API_URL ? process.env.REACT_APP_SEARCH_API_URL : "http://localhost:8000");
     this.endpoint = '/search/';
     this.timeout = 10000;
     this.retries = 3;
