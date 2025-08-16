@@ -1,9 +1,13 @@
 
 import React, { useState, useEffect, useRef } from 'react';
+import { useAuth } from '../context/AuthContext';
 import chatService from '../services/chatService';
 import '../styles/chatModal.css';
 
 const ChatModal = ({ isOpen, onClose }) => {
+  const { user } = useAuth();
+  const userId = user?.username || 'anonymous_user';
+
   const [messages, setMessages] = useState([
     {
       id: 1,
@@ -31,6 +35,21 @@ const ChatModal = ({ isOpen, onClose }) => {
     scrollToBottom();
   }, [messages]);
 
+  useEffect(() => {
+    (async () => {
+      try {
+        const state = await chatService.getShoppingListState(userId);
+        const items = Array.isArray(state?.items) ? state.items : [];
+        const normalized = items.filter(i => !i.removed).map((it, idx) => ({
+          id: `${it.name}-${idx}`,
+          name: it.name,
+          quantity: it.quantity ?? 1
+        }));
+        setShoppingList(normalized);
+      } catch (_) {}
+    })();
+  }, [userId]);
+
   const addMessage = (text, sender) => {
     const newMessage = {
       id: Date.now(),
@@ -41,16 +60,10 @@ const ChatModal = ({ isOpen, onClose }) => {
     setMessages(prev => [...prev, newMessage]);
   };
 
-  const addToShoppingList = (item) => {
-    const newItem = {
-      id: Date.now(),
-      name: item.name || item,
-      category: item.category || 'General',
-      quantity: item.quantity || 1,
-      completed: false,
-      variants: item.variants || []
-    };
-    setShoppingList(prev => [...prev, newItem]);
+  const mergeShoppingListFromApi = (apiList) => {
+    if (!Array.isArray(apiList)) return;
+    const merged = apiList.map((name, idx) => ({ id: `${name}-${idx}-${Date.now()}`, name, quantity: 1 }));
+    setShoppingList(merged);
   };
 
   const handleSendMessage = async () => {
@@ -62,29 +75,11 @@ const ChatModal = ({ isOpen, onClose }) => {
     setIsLoading(true);
 
     try {
-      // Send message to chat service
-      const response = await chatService.sendMessage(userMessage);
-      
-      // Handle different response types
-      if (response.type === 'product_search' || response.type === 'add_item') {
-        // If it's a product search or add item request
-        addMessage(response.message || 'Let me search for that item...', 'bot');
-        
-        if (response.products && response.products.length > 0) {
-          // Add products to shopping list
-          response.products.forEach(product => {
-            addToShoppingList(product);
-          });
-          
-          addMessage(`Added ${response.products.length} item(s) to your shopping list!`, 'bot');
-        } else if (response.item) {
-          // Single item response
-          addToShoppingList(response.item);
-          addMessage(`Added "${response.item.name || response.item}" to your shopping list!`, 'bot');
-        }
-      } else {
-        // Regular chat response
-        addMessage(response.message || response.response || 'I understand. How else can I help you?', 'bot');
+      const response = await chatService.sendMessage(userId, userMessage);
+      const bot = response?.bot_response || response?.message || 'I understand. How else can I help you?';
+      addMessage(bot, 'bot');
+      if (response?.shopping_list) {
+        mergeShoppingListFromApi(response.shopping_list);
       }
     } catch (error) {
       console.error('Chat service error:', error);
@@ -101,12 +96,8 @@ const ChatModal = ({ isOpen, onClose }) => {
     }
   };
 
-  const toggleItemComplete = (itemId) => {
-    setShoppingList(prev => 
-      prev.map(item => 
-        item.id === itemId ? { ...item, completed: !item.completed } : item
-      )
-    );
+  const updateQuantity = (id, qty) => {
+    setShoppingList(prev => prev.map(i => i.id === id ? { ...i, quantity: qty } : i));
   };
 
   const removeItem = (itemId) => {
@@ -180,18 +171,23 @@ const ChatModal = ({ isOpen, onClose }) => {
               ) : (
                 <div className="shopping-list">
                   {shoppingList.map((item) => (
-                    <div key={item.id} className={`shopping-item ${item.completed ? 'completed' : ''}`}>
-                      <div className="item-checkbox">
-                        <input
-                          type="checkbox"
-                          checked={item.completed}
-                          onChange={() => toggleItemComplete(item.id)}
-                        />
-                      </div>
+                    <div key={item.id} className={`shopping-item`}>
                       <div className="item-details">
                         <span className="item-name">{item.name}</span>
-                        <span className="item-category">{item.category}</span>
-                        <span className="item-quantity">Qty: {item.quantity}</span>
+                        <span className="item-category">Item</span>
+                        <div className="d-flex align-items-center gap-2 mt-1">
+                          <label className="text-muted small">Qty:</label>
+                          <select
+                            value={item.quantity}
+                            onChange={(e) => updateQuantity(item.id, Number(e.target.value))}
+                            className="form-select form-select-sm"
+                            style={{ width: 80 }}
+                          >
+                            {Array.from({ length: 10 }, (_, i) => i + 1).map(n => (
+                              <option key={n} value={n}>{n}</option>
+                            ))}
+                          </select>
+                        </div>
                       </div>
                       <button className="remove-item" onClick={() => removeItem(item.id)}>
                         <i className="fas fa-trash"></i>
@@ -203,8 +199,7 @@ const ChatModal = ({ isOpen, onClose }) => {
               
               <div className="shopping-stats">
                 <div><i className="fas fa-list"></i> {shoppingList.length} items</div>
-                <div><i className="fas fa-check-circle"></i> {shoppingList.filter(item => item.completed).length} completed</div>
-                <div><i className="fas fa-cube"></i> {shoppingList.reduce((sum, item) => sum + item.quantity, 0)} units</div>
+                <div><i className="fas fa-cube"></i> {shoppingList.reduce((sum, item) => sum + (item.quantity || 1), 0)} units</div>
               </div>
             </div>
           </div>
