@@ -2,9 +2,10 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import chatService from '../services/chatService';
-import { fetchInventory, matchItems } from '../services/inventoryService';
+import { fetchInventory } from '../services/inventoryService';
 import '../styles/floorplan.css';
 import imageService from '../services/imageService';
+import listSync from '../services/listSync';
 
 const sanitize = (s) => (s || '').toString().trim().replace(/[\s,.;:]+$/g, '');
 
@@ -85,35 +86,15 @@ const FloorplanPage = () => {
 		})();
 	}, []);
 
-	// Load API shopping list and try to map to inventory faces
+	// Unified list on mount
 	useEffect(() => {
 		(async () => {
 			try {
-				const state = await chatService.getShoppingListState(userId);
-				const items = Array.isArray(state?.items) ? state.items : [];
-				const names = items.filter(i => !i.removed).map(i => sanitize(i.name));
-				let display = names.map((n, idx) => ({ id: `${n}-${idx}`, name: n, quantity: 1 }));
-				// Heuristic: try service matching then fallback to simple substring over inventory
-				try {
-					const match = await matchItems('shop_1', names);
-					if (Array.isArray(match?.closest_matches)) {
-						display = match.closest_matches.map((n, idx) => ({ id: `${(n || names[idx])}-${idx}`, name: (n || names[idx]), quantity: 1 }));
-					}
-				} catch {}
-				if (inventory.length) {
-					const norm = (s) => sanitize(s).toLowerCase();
-					const mapByName = new Map(inventory.map(inv => [norm(inv.item_description), inv]));
-					display = display.map(it => {
-						const exact = mapByName.get(norm(it.name));
-						if (exact) return { ...it, face_id: exact.face_id, barcode: exact.barcode };
-						const fuzzy = inventory.find(invIt => norm(invIt.item_description).includes(norm(it.name)));
-						return fuzzy ? { ...it, face_id: fuzzy.face_id, barcode: fuzzy.barcode } : it;
-					});
-				}
-				setShoppingList(display);
+				const unified = await listSync.getUnifiedList(userId);
+				setShoppingList(unified);
 			} catch (_) {}
 		})();
-	}, [userId, inventory]);
+	}, [userId]);
 
 	// Faces computed from vertices
 	useEffect(() => {
@@ -245,10 +226,15 @@ const FloorplanPage = () => {
 		setShoppingList(prev => prev.map(i => i.id === id ? { ...i, quantity: qty } : i));
 	};
 
-	const addItemToList = (desc) => {
+	const addItemToList = async (desc) => {
 		const name = sanitize(desc);
 		if (!name) return;
-		setShoppingList(prev => [{ id: `${name}-${Date.now()}`, name, face_id: selectedFace?.id, quantity: 1 }, ...prev]);
+		try {
+			const unified = await listSync.syncAddSpecific(userId, name);
+			setShoppingList(unified);
+		} catch (_) {
+			setShoppingList(prev => [{ id: `${name}-${Date.now()}`, name, face_id: selectedFace?.id, quantity: 1 }, ...prev]);
+		}
 	};
 
   return (
@@ -318,7 +304,7 @@ const FloorplanPage = () => {
 											<div className="me-2" style={{ width: 16, height: 16, borderRadius: '50%', background: faceColors[it.face_id] || '#64748b' }} />
 											<div className="flex-grow-1">
 												<div className="fw-semibold small d-flex align-items-center gap-2">
-													<img src={it.imageUrl || it.image_url || 'https://via.placeholder.com/32'} alt={it.name} width={32} height={32} style={{ borderRadius: 6, objectFit: 'cover' }} />
+													<img src={it.imageUrl || it.image_url || 'https://via.placeholder.com/32'} onError={(e)=>{e.currentTarget.src='https://via.placeholder.com/32';}} alt={it.name} width={32} height={32} style={{ borderRadius: 6, objectFit: 'cover' }} />
 													{it.name}
 												</div>
 												<small className="text-muted">{it.unit ? `$${it.price}/${it.unit}` : ''}</small>
@@ -336,7 +322,7 @@ const FloorplanPage = () => {
 													</select>
           </div>
             </div>
-											<button className="btn btn-sm btn-outline-danger" onClick={() => setShoppingList(prev => prev.filter(p => p.id !== it.id))}><i className="fas fa-trash"></i></button>
+											<button className="btn btn-sm btn-outline-danger" onClick={async ()=>{ await listSync.syncRemoveSpecific(userId, it.name); const u= await listSync.getUnifiedList(userId); setShoppingList(u); }}><i className="fas fa-trash"></i></button>
             </div>
 									))}
             </div>

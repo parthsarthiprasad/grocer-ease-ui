@@ -4,10 +4,10 @@ import { useAuth } from '../context/AuthContext';
 import chatService from '../services/chatService';
 import '../styles/chatModal.css';
 import imageService from '../services/imageService';
+import listSync from '../services/listSync';
 
 const storageKey = (userId) => `ge_chat_${userId}`;
 const sanitizeName = (n) => (n || '').toString().trim().replace(/[\s,.;:]+$/g, '');
-// Images are resolved via OpenFoodFacts; we attach imageUrl lazily per item
 
 const LaunchPage = () => {
   const { user } = useAuth();
@@ -24,7 +24,7 @@ const LaunchPage = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Load chat history + list state on mount
+  // Load chat history + unified list state on mount
   useEffect(() => {
     try {
       const raw = localStorage.getItem(storageKey(userId));
@@ -36,7 +36,10 @@ const LaunchPage = () => {
       }
     } catch (_) {}
     (async () => {
-      await refreshFromState();
+      try {
+        const unified = await listSync.getUnifiedList(userId);
+        setShoppingList(unified);
+      } catch (_) {}
       setLoaded(true);
     })();
   }, [userId]);
@@ -54,23 +57,10 @@ const LaunchPage = () => {
     setMessages(prev => [...prev, { id: Date.now(), text, sender, timestamp: new Date() }]);
   };
 
-  const setListFromChat = (names) => {
-    if (!Array.isArray(names)) return;
-    const normalized = names
-      .map(sanitizeName)
-      .filter(Boolean)
-      .map((n, idx) => ({ id: `${n}-${idx}-${Date.now()}`, name: n, quantity: 1 }));
-    setShoppingList(normalized);
-  };
-
-  const refreshFromState = async () => {
+  const refreshUnified = async () => {
     try {
-      const state = await chatService.getShoppingListState(userId);
-      const items = Array.isArray(state?.items) ? state.items : [];
-      const normalized = items
-        .filter(i => !i.removed)
-        .map((it, idx) => ({ id: `${sanitizeName(it.name)}-${idx}`, name: sanitizeName(it.name), quantity: it.quantity ?? 1 }));
-      setShoppingList(normalized);
+      const unified = await listSync.getUnifiedList(userId);
+      setShoppingList(unified);
     } catch (_) {}
   };
 
@@ -84,10 +74,7 @@ const LaunchPage = () => {
       const data = await chatService.sendMessage(userId, text);
       const bot = data?.bot_response || data?.message || 'Okay!';
       addMessage(bot, 'bot');
-      if (Array.isArray(data?.shopping_list)) {
-        setListFromChat(data.shopping_list);
-      }
-      await refreshFromState();
+      await refreshUnified();
     } catch (e) {
       addMessage("Sorry, I'm having trouble connecting right now.", 'bot');
     } finally {
@@ -106,11 +93,8 @@ const LaunchPage = () => {
     const item = shoppingList.find(i => i.id === id);
     if (!item) return;
     try {
-      const itemsOnly = await chatService.getItemsOnly(userId);
-      const current = Array.isArray(itemsOnly?.items) ? itemsOnly.items.map(sanitizeName) : [];
-      const updated = current.filter(n => n.toLowerCase() !== item.name.toLowerCase());
-      await chatService.syncList(userId, updated);
-      await refreshFromState();
+      await listSync.syncRemoveSpecific(userId, item.name);
+      await refreshUnified();
     } catch (_) {
       setShoppingList(prev => prev.filter(i => i.id !== id));
     }
@@ -133,7 +117,7 @@ const LaunchPage = () => {
     (async () => {
       const updates = await Promise.all(shoppingList.map(async (it) => {
         if (it.imageUrl) return it;
-        const url = await imageService.getImageForItem({ name: it.name });
+        const url = await imageService.getImageForItem({ name: it.name, barcode: it.barcode });
         return { ...it, imageUrl: url };
       }));
       if (!cancelled) setShoppingList(updates);
@@ -207,7 +191,7 @@ const LaunchPage = () => {
                   <div key={item.id} className="shopping-item">
                     <div className="item-details">
                       <span className="item-name d-flex align-items-center gap-2">
-                        <img src={item.imageUrl || 'https://via.placeholder.com/32'} alt={item.name} width={32} height={32} style={{ borderRadius: 6, objectFit: 'cover' }} />
+                        <img src={item.imageUrl || 'https://via.placeholder.com/32'} onError={(e)=>{e.currentTarget.src='https://via.placeholder.com/32';}} alt={item.name} width={32} height={32} style={{ borderRadius: 6, objectFit: 'cover' }} />
                         {item.name}
                       </span>
                       <span className="item-category text-muted">Item</span>

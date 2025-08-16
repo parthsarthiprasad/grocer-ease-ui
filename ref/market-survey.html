@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Available Near - Market Survey</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .section {
+            padding: 40px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .section:last-child {
+            border-bottom: none;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .section-number {
+            background: #2c5aa0;
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .section-title {
+            flex: 1;
+        }
+
+        .section-title h2 {
+            margin: 0 0 5px 0;
+            color: #2c5aa0;
+            font-size: 1.8rem;
+        }
+
+        .section-title p {
+            margin: 0;
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .screenshot {
+            width: 100%;
+            max-width: 600px;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .intro-text {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border-left: 4px solid #2c5aa0;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 15px;
+            font-weight: 500;
+            color: #333;
+            font-size: 1.1rem;
+            line-height: 1.4;
+        }
+
+        .required:after {
+            content: " *";
+            color: #dc3545;
+        }
+
+        .radio-group, .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .radio-option, .checkbox-option {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .radio-option:hover, .checkbox-option:hover {
+            background-color: #f8f9fa;
+            border-color: #2c5aa0;
+        }
+
+        .radio-option input, .checkbox-option input {
+            margin-right: 12px;
+            transform: scale(1.2);
+            accent-color: #2c5aa0;
+        }
+
+        .scale-group {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .scale-label {
+            font-size: 0.9rem;
+            color: #666;
+            font-weight: 500;
+            min-width: 120px;
+            text-align: center;
+        }
+
+        .scale-options {
+            display: flex;
+            gap: 8px;
+            flex: 1;
+            justify-content: center;
+        }
+
+        .scale-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            min-width: 45px;
+        }
+
+        .scale-option:hover {
+            background-color: #f8f9fa;
+            border-color: #2c5aa0;
+        }
+
+        .scale-option input {
+            margin: 0 0 5px 0;
+            transform: scale(1.1);
+            accent-color: #2c5aa0;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-family: inherit;
+            font-size: 1rem;
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .submit-section {
+            text-align: center;
+            padding: 40px;
+            background: #f8f9fa;
+        }
+
+        .btn {
+            background: #2c5aa0;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn:hover {
+            background: #1e3a73;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 0;
+                border-radius: 0;
+            }
+            
+            .section {
+                padding: 25px 20px;
+            }
+
+            .section-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .scale-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <form action="#" method="POST">
+            <!-- Section 1: Introduction & Shopping Habits -->
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-number">1</div>
+                    <div class="section-title">
+                        <h2>Shopping Habits & Preferences</h2>
+                        <p>Help us understand how you currently shop for groceries</p>
+                    </div>
+                </div>
+
+                <img src="attached_assets/Screenshot 2025-08-16 at 3.46.05 AM_1755330388869.png" alt="Store floor map interface" class="screenshot">
+
+                <div class="intro-text">
+                    <p><strong>Your smart grocery buddy — before, during, and after the store.</strong></p>
+                    <p>We're building an app that helps you plan your grocery list, find items in-store (aisle + shelf!), share lists with family, and get answers to random grocery questions (like what even is half-and-half?).</p>
+                    <p>This quick survey helps us understand how you shop and what would make it better.</p>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label required">How often do you shop for groceries in a typical week?</label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="shopping_frequency" value="daily" required>
+                            <span>Daily</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="shopping_frequency" value="2-3_times_week" required>
+                            <span>2-3 times a week</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="shopping_frequency" value="once_week" required>
+                            <span>Once a week</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="shopping_frequency" value="less_than_once_week" required>
+                            <span>Less than once a week</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label required">What is your biggest frustration when grocery shopping? (Select up to 2)</label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-option">
+                            <input type="checkbox" name="frustrations" value="forgetting_items">
+                            <span>Forgetting items</span>
+                        </label>
+                        <label class="checkbox-option">
+                            <input type="checkbox" name="frustrations" value="searching_items">
+                            <span>Searching for items in-store</span>
+                        </label>
+                        <label class="checkbox-option">
+                            <input type="checkbox" name="frustrations" value="long_lines">
+                            <span>Long checkout lines</span>
+                        </label>
+                        <label class="checkbox-option">
+                            <input type="checkbox" name="frustrations" value="managing_budget">
+                            <span>Managing budget</span>
+                        </label>
+                        <label class="checkbox-option">
+                            <input type="checkbox" name="frustrations" value="other">
+                            <span>Other</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label required">How do you currently create and manage your grocery shopping lists?</label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="list_management" value="paper_list" required>
+                            <span>Paper list</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="list_management" value="phone_notes" required>
+                            <span>Phone notes app</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="list_management" value="grocery_app" required>
+                            <span>Dedicated grocery app</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="list_management" value="memory_only" required>
+                            <span>Memory only</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="list_management" value="other" required>
+                            <span>Other</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label required">On average, how much time do you spend looking for items inside a grocery store?</label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="search_time" value="less_5_min" required>
+                            <span>Less than 5 minutes</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="search_time" value="15_30_min" required>
+                            <span>15-30 minutes</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="search_time" value="less_1_hour" required>
+                            <span>Less than 1 hour</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="search_time" value="more_1_hour" required>
+                            <span>More than 1 hour</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 2: App Features & Digital Assistant Preferences -->
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-number">2</div>
+                    <div class="section-title">
+                        <h2>Smart Shopping Features</h2>
+                        <p>Your thoughts on digital assistants and smart shopping tools</p>
+                    </div>
+                </div>
+
+                <img src="attached_assets/Screenshot 2025-08-16 at 3.46.18 AM_1755330388875.png" alt="Shopping assistant interface" class="screenshot">
+
+                <div class="form-group">
+                    <label class="form-label required">Have you ever left a grocery store without purchasing an item because you couldn't find it?</label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="left_without_item" value="yes" required>
+                            <span>Yes</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="left_without_item" value="no" required>
+                            <span>No</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label required">Would having precise information on where items are located in the store improve your shopping experience?</label>
+                    <div class="scale-group">
+                        <span class="scale-label">Not at All</span>
+                        <div class="scale-options">
+                            <label class="scale-option">
+                                <input type="radio" name="location_info_value" value="1" required>
+                                <span>1</span>
+                            </label>
+                            <label class="scale-option">
+                                <input type="radio" name="location_info_value" value="2" required>
+                                <span>2</span>
+                            </label>
+                            <label class="scale-option">
+                                <input type="radio" name="location_info_value" value="3" required>
+                                <span>3</span>
+                            </label>
+                            <label class="scale-option">
+                                <input type="radio" name="location_info_value" value="4" required>
+                                <span>4</span>
+                            </label>
+                            <label class="scale-option">
+                                <input type="radio" name="location_info_value" value="5" required>
+                                <span>5</span>
+                            </label>
+                        </div>
+                        <span class="scale-label">Extremely</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label required">How likely are you to use a chatbot to help you build and manage your shopping list?</label>
+                    <div class="scale-group">
+                        <span class="scale-label">Very Unlikely</span>
+                        <div class="scale-options">
+                            <label class="scale-option">
+                                <input type="radio" name="chatbot_likelihood" value="1" required>
+                                <span>1</span>
+                            </label>
+                            <label class="scale-option">
+                                <input type="radio" name="chatbot_likelihood" value="2" required>
+                                <span>2</span>
+                            </label>
+                            <label class="scale-option">
+                                <input type="radio" name="chatbot_likelihood" value="3" required>
+                                <span>3</span>
+                            </label>
+                            <label class="scale-option">
+                                <input type="radio" name="chatbot_likelihood" value="4" required>
+                                <span>4</span>
+                            </label>
+                            <label class="scale-option">
+                                <input type="radio" name="chatbot_likelihood" value="5" required>
+                                <span>5</span>
+                            </label>
+                        </div>
+                        <span class="scale-label">Very Likely</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label required">Would you use an app that automatically organizes your shopping list by store aisle/location?</label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="aisle_organization" value="yes" required>
+                            <span>Yes</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="aisle_organization" value="no" required>
+                            <span>No</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="aisle_organization" value="maybe" required>
+                            <span>Maybe</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label required">How useful would it be to receive real-time updates on item availability or restocking in your preferred stores?</label>
+                    <div class="scale-group">
+                        <span class="scale-label">Not at all useful</span>
+                        <div class="scale-options">
+                            <label class="scale-option">
+                                <input type="radio" name="realtime_updates_value" value="1" required>
+                                <span>1</span>
+                            </label>
+                            <label class="scale-option">
+                                <input type="radio" name="realtime_updates_value" value="2" required>
+                                <span>2</span>
+                            </label>
+                            <label class="scale-option">
+                                <input type="radio" name="realtime_updates_value" value="3" required>
+                                <span>3</span>
+                            </label>
+                            <label class="scale-option">
+                                <input type="radio" name="realtime_updates_value" value="4" required>
+                                <span>4</span>
+                            </label>
+                            <label class="scale-option">
+                                <input type="radio" name="realtime_updates_value" value="5" required>
+                                <span>5</span>
+                            </label>
+                        </div>
+                        <span class="scale-label">Essential</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 3: User Preferences & Demographics -->
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-number">3</div>
+                    <div class="section-title">
+                        <h2>App Preferences & Privacy</h2>
+                        <p>Your preferences for app features and data privacy</p>
+                    </div>
+                </div>
+
+                <img src="attached_assets/Screenshot 2025-08-16 at 3.46.05 AM_1755330388869.png" alt="Store floor map interface" class="screenshot">
+
+                <div class="form-group">
+                    <label class="form-label required">Would you prefer a chatbot interface over a traditional list app for grocery management?</label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="chatbot_vs_traditional" value="yes" required>
+                            <span>Yes</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="chatbot_vs_traditional" value="no" required>
+                            <span>No</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="chatbot_vs_traditional" value="depends" required>
+                            <span>Depends on ease of use</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label required">How likely are you to use bulk purchase deals or group buying options if offered through the app?</label>
+                    <div class="scale-group">
+                        <span class="scale-label">Very Unlikely</span>
+                        <div class="scale-options">
+                            <label class="scale-option">
+                                <input type="radio" name="bulk_deals_likelihood" value="1" required>
+                                <span>1</span>
+                            </label>
+                            <label class="scale-option">
+                                <input type="radio" name="bulk_deals_likelihood" value="2" required>
+                                <span>2</span>
+                            </label>
+                            <label class="scale-option">
+                                <input type="radio" name="bulk_deals_likelihood" value="3" required>
+                                <span>3</span>
+                            </label>
+                            <label class="scale-option">
+                                <input type="radio" name="bulk_deals_likelihood" value="4" required>
+                                <span>4</span>
+                            </label>
+                            <label class="scale-option">
+                                <input type="radio" name="bulk_deals_likelihood" value="5" required>
+                                <span>5</span>
+                            </label>
+                        </div>
+                        <span class="scale-label">Very Likely</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label required">Would you be interested in getting personalized deals or discounts based on your shopping habits?</label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="personalized_deals" value="yes" required>
+                            <span>Yes</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="personalized_deals" value="no" required>
+                            <span>No</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="personalized_deals" value="maybe" required>
+                            <span>Maybe</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label required">How important is offline functionality (using the app without internet) to you?</label>
+                    <div class="scale-group">
+                        <span class="scale-label">Not at all important</span>
+                        <div class="scale-options">
+                            <label class="scale-option">
+                                <input type="radio" name="offline_importance" value="1" required>
+                                <span>1</span>
+                            </label>
+                            <label class="scale-option">
+                                <input type="radio" name="offline_importance" value="2" required>
+                                <span>2</span>
+                            </label>
+                            <label class="scale-option">
+                                <input type="radio" name="offline_importance" value="3" required>
+                                <span>3</span>
+                            </label>
+                            <label class="scale-option">
+                                <input type="radio" name="offline_importance" value="4" required>
+                                <span>4</span>
+                            </label>
+                            <label class="scale-option">
+                                <input type="radio" name="offline_importance" value="5" required>
+                                <span>5</span>
+                            </label>
+                        </div>
+                        <span class="scale-label">Essential</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label required">Would you prefer an app that integrates with your existing digital assistants (e.g., Alexa, Google Assistant)?</label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="digital_assistant_integration" value="yes" required>
+                            <span>Yes</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="digital_assistant_integration" value="no" required>
+                            <span>No</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="digital_assistant_integration" value="doesnt_matter" required>
+                            <span>Doesn't matter</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 4: Demographics & Current Usage -->
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-number">4</div>
+                    <div class="section-title">
+                        <h2>About You & Privacy</h2>
+                        <p>Demographics and privacy preferences</p>
+                    </div>
+                </div>
+
+                <img src="attached_assets/Screenshot 2025-08-16 at 3.46.18 AM_1755330388875.png" alt="Shopping assistant interface" class="screenshot">
+
+                <div class="form-group">
+                    <label class="form-label required">How concerned are you about your shopping data being shared with third parties?</label>
+                    <div class="scale-group">
+                        <span class="scale-label">Not concerned</span>
+                        <div class="scale-options">
+                            <label class="scale-option">
+                                <input type="radio" name="data_privacy_concern" value="1" required>
+                                <span>1</span>
+                            </label>
+                            <label class="scale-option">
+                                <input type="radio" name="data_privacy_concern" value="2" required>
+                                <span>2</span>
+                            </label>
+                            <label class="scale-option">
+                                <input type="radio" name="data_privacy_concern" value="3" required>
+                                <span>3</span>
+                            </label>
+                            <label class="scale-option">
+                                <input type="radio" name="data_privacy_concern" value="4" required>
+                                <span>4</span>
+                            </label>
+                            <label class="scale-option">
+                                <input type="radio" name="data_privacy_concern" value="5" required>
+                                <span>5</span>
+                            </label>
+                        </div>
+                        <span class="scale-label">Extremely concerned</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label required">Would you be more likely to use the app if you knew your data was fully encrypted and anonymized?</label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="encryption_preference" value="yes" required>
+                            <span>Yes</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="encryption_preference" value="no" required>
+                            <span>No</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="encryption_preference" value="maybe" required>
+                            <span>Maybe</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label required">Which continent are you currently located?</label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="location_continent" value="north_america" required>
+                            <span>North America</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="location_continent" value="south_america" required>
+                            <span>South America</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="location_continent" value="asia" required>
+                            <span>Asia</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="location_continent" value="europe" required>
+                            <span>Europe</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="location_continent" value="other" required>
+                            <span>Other</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label required">What is your age group?</label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="age_group" value="under_18" required>
+                            <span>Under 18</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="age_group" value="18_24" required>
+                            <span>18-24</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="age_group" value="25_34" required>
+                            <span>25-34</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="age_group" value="35_44" required>
+                            <span>35-44</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="age_group" value="45_54" required>
+                            <span>45-54</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="age_group" value="55_64" required>
+                            <span>55-64</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="age_group" value="65_plus" required>
+                            <span>65+</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label required">What type of grocery stores do you primarily shop at?</label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="store_type" value="large_supermarket" required>
+                            <span>Large supermarket chains</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="store_type" value="local_independent" required>
+                            <span>Local independent stores</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="store_type" value="specialty_organic" required>
+                            <span>Specialty organic stores</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="store_type" value="discount_stores" required>
+                            <span>Discount stores</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="store_type" value="online" required>
+                            <span>Online</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label required">What is your average monthly grocery spend?</label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="monthly_spend" value="under_100" required>
+                            <span>Less than $100</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="monthly_spend" value="100_250" required>
+                            <span>$100-250</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="monthly_spend" value="250_500" required>
+                            <span>$250-500</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="monthly_spend" value="500_750" required>
+                            <span>$500-750</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="monthly_spend" value="750_plus" required>
+                            <span>$750+</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label required">What device do you primarily use to manage your shopping lists?</label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="primary_device" value="smartphone" required>
+                            <span>Smartphone</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="primary_device" value="tablet" required>
+                            <span>Tablet</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="primary_device" value="desktop" required>
+                            <span>Desktop</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="primary_device" value="paper_list" required>
+                            <span>Paper list</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="primary_device" value="other" required>
+                            <span>Other</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Are you currently using any grocery or shopping-related apps? If yes, which ones?</label>
+                    <textarea name="current_apps" rows="3" placeholder="Please list any grocery or shopping apps you currently use..."></textarea>
+                </div>
+            </div>
+
+            <div class="submit-section">
+                <button type="submit" class="btn">Submit Market Survey</button>
+                <p style="margin-top: 15px; color: #666;">Thank you so much for taking the time to fill out this survey! Cheers!</p>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
