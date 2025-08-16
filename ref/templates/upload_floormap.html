@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}Upload Floormap - Grocer-Ease{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">
+                        <i class="fas fa-upload me-2"></i>Upload Floormap
+                    </h5>
+                </div>
+                <div class="card-body text-center py-5">
+                    <div class="mb-4">
+                        <i class="fas fa-upload fa-5x text-warning mb-3"></i>
+                    </div>
+                    
+                    <h3 class="text-primary mb-4">Coming Soon!</h3>
+                    
+                    <div class="alert alert-info">
+                        <h5 class="alert-heading">
+                            <i class="fas fa-info-circle me-2"></i>Feature Update
+                        </h5>
+                        <p class="mb-3">
+                            The floormap upload functionality is currently under development.
+                        </p>
+                        <p class="mb-0">
+                            Shopkeepers will soon be able to upload new store layouts and update inventory mappings.
+                        </p>
+                    </div>
+                    
+                    <div class="row mt-5">
+                        <div class="col-md-4">
+                            <div class="text-center">
+                                <i class="fas fa-cog fa-2x text-primary mb-3"></i>
+                                <h6>In Development</h6>
+                                <p class="text-muted small">Upload functionality coming in Q2 2025</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center">
+                                <i class="fas fa-bell fa-2x text-success mb-3"></i>
+                                <h6>Get Notified</h6>
+                                <p class="text-muted small">Sign up for feature updates</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center">
+                                <i class="fas fa-tools fa-2x text-info mb-3"></i>
+                                <h6>Admin Tools</h6>
+                                <p class="text-muted small">Inventory management features</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <a href="{{ url_for('floormap') }}" class="btn btn-primary me-3">
+                            <i class="fas fa-map me-2"></i>View Current Floormap
+                        </a>
+                        <a href="{{ url_for('chatbot') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-comments me-2"></i>Back to Chatbot
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
