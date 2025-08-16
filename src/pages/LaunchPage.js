@@ -3,10 +3,11 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import chatService from '../services/chatService';
 import '../styles/chatModal.css';
+import imageService from '../services/imageService';
 
 const storageKey = (userId) => `ge_chat_${userId}`;
 const sanitizeName = (n) => (n || '').toString().trim().replace(/[\s,.;:]+$/g, '');
-const imgFor = (name, size = 40) => `https://source.unsplash.com/${size}x${size}/?${encodeURIComponent(name)}`;
+// Images are resolved via OpenFoodFacts; we attach imageUrl lazily per item
 
 const LaunchPage = () => {
   const { user } = useAuth();
@@ -126,6 +127,20 @@ const LaunchPage = () => {
     setShoppingList(prev => prev.map(i => i.id === id ? { ...i, quantity: qty } : i));
   };
 
+  // Resolve images for items without imageUrl using OpenFoodFacts
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const updates = await Promise.all(shoppingList.map(async (it) => {
+        if (it.imageUrl) return it;
+        const url = await imageService.getImageForItem({ name: it.name });
+        return { ...it, imageUrl: url };
+      }));
+      if (!cancelled) setShoppingList(updates);
+    })();
+    return () => { cancelled = true; };
+  }, [shoppingList.map(i => i.id).join('|')]);
+
   return (
     <div className="container-fluid py-4">
       <div className="chat-container" style={{ minHeight: '70vh' }}>
@@ -192,7 +207,7 @@ const LaunchPage = () => {
                   <div key={item.id} className="shopping-item">
                     <div className="item-details">
                       <span className="item-name d-flex align-items-center gap-2">
-                        <img src={imgFor(item.name, 32)} alt={item.name} width={32} height={32} style={{ borderRadius: 6, objectFit: 'cover' }} />
+                        <img src={item.imageUrl || 'https://via.placeholder.com/32'} alt={item.name} width={32} height={32} style={{ borderRadius: 6, objectFit: 'cover' }} />
                         {item.name}
                       </span>
                       <span className="item-category text-muted">Item</span>

@@ -4,16 +4,15 @@ import { useAuth } from '../context/AuthContext';
 import chatService from '../services/chatService';
 import { fetchInventory, matchItems } from '../services/inventoryService';
 import '../styles/floorplan.css';
+import imageService from '../services/imageService';
 
 const sanitize = (s) => (s || '').toString().trim().replace(/[\s,.;:]+$/g, '');
-const imgFor = (name, size = 40) => `https://source.unsplash.com/${size}x${size}/?${encodeURIComponent(name)}`;
 
 const FloorplanPage = () => {
 	const { user } = useAuth();
 	const userId = user?.username || 'anonymous_user';
 
 	const svgRef = useRef(null);
-	const bgRef = useRef(null);
 	const tooltipRef = useRef(null);
 	const [storeData, setStoreData] = useState(null);
 	const [inventory, setInventory] = useState([]);
@@ -25,7 +24,7 @@ const FloorplanPage = () => {
 	const [bgOn, setBgOn] = useState(false);
 
 	// Load vertices and compute bounds
-	useEffect(() => {
+  useEffect(() => {
 		fetch('/data/vertices.json')
 			.then(r => r.json())
 			.then((v) => {
@@ -51,12 +50,34 @@ const FloorplanPage = () => {
 		(async () => {
 			try {
 				const items = await fetchInventory('shop_1');
-				setInventory(items);
+				// Normalize and prime image cache
+				const normalized = items.map((it) => ({
+					item_id: it.item_id || it.id,
+					item_description: it.item_description || it.name || it.description || '',
+					barcode: it.barcode,
+					face_id: it.face_id,
+					item_cost: it.item_cost || it.price,
+					image_url: it.image_url,
+					unit: it.unit,
+				}));
+				normalized.forEach(n => imageService.primeCache({ name: n.item_description, barcode: n.barcode, image_url: n.image_url }));
+				setInventory(normalized);
 			} catch (_) {
 				try {
 					const r = await fetch('/data/shop_inventory.json');
 					const j = await r.json();
-					setInventory(j.items || j);
+					const arr = j.items || j;
+					const normalized = arr.map((it) => ({
+						item_id: it.item_id || it.id,
+						item_description: it.item_description || it.name || it.description || '',
+						barcode: it.barcode,
+						face_id: it.face_id,
+						item_cost: it.item_cost || it.price,
+						image_url: it.image_url,
+						unit: it.unit,
+					}));
+					normalized.forEach(n => imageService.primeCache({ name: n.item_description, barcode: n.barcode, image_url: n.image_url }));
+					setInventory(normalized);
 				} catch {
 					setInventory([]);
 				}
@@ -64,35 +85,47 @@ const FloorplanPage = () => {
 		})();
 	}, []);
 
-	// Load API shopping list first
+	// Load API shopping list and try to map to inventory faces
 	useEffect(() => {
 		(async () => {
 			try {
 				const state = await chatService.getShoppingListState(userId);
 				const items = Array.isArray(state?.items) ? state.items : [];
-				const names = items.filter(i => !i.removed).map(i => (i.name || '').trim().replace(/[\s,.;:]+$/g, ''));
+				const names = items.filter(i => !i.removed).map(i => sanitize(i.name));
 				let display = names.map((n, idx) => ({ id: `${n}-${idx}`, name: n, quantity: 1 }));
+				// Heuristic: try service matching then fallback to simple substring over inventory
 				try {
 					const match = await matchItems('shop_1', names);
 					if (Array.isArray(match?.closest_matches)) {
 						display = match.closest_matches.map((n, idx) => ({ id: `${(n || names[idx])}-${idx}`, name: (n || names[idx]), quantity: 1 }));
 					}
 				} catch {}
+				if (inventory.length) {
+					const norm = (s) => sanitize(s).toLowerCase();
+					const mapByName = new Map(inventory.map(inv => [norm(inv.item_description), inv]));
+					display = display.map(it => {
+						const exact = mapByName.get(norm(it.name));
+						if (exact) return { ...it, face_id: exact.face_id, barcode: exact.barcode };
+						const fuzzy = inventory.find(invIt => norm(invIt.item_description).includes(norm(it.name)));
+						return fuzzy ? { ...it, face_id: fuzzy.face_id, barcode: fuzzy.barcode } : it;
+					});
+				}
 				setShoppingList(display);
 			} catch (_) {}
 		})();
-	}, [userId]);
+	}, [userId, inventory]);
 
+	// Faces computed from vertices
 	useEffect(() => {
 		if (!storeData) return;
 		const f = [];
 		let id = 0;
 		const pushEdges = (vertices) => {
-			for (let i = 0; i < vertices.length; i++) {
-				const start = vertices[i];
-				const end = vertices[(i + 1) % vertices.length];
-				f.push({ id: `face_${String(id).padStart(3, '0')}`, start, end });
-				id++;
+        for (let i = 0; i < vertices.length; i++) {
+          const start = vertices[i];
+          const end = vertices[(i + 1) % vertices.length];
+			f.push({ id: `face_${String(id).padStart(3, '0')}`, start, end });
+			id++;
 			}
 		};
 		if (storeData.store_vertices?.length) pushEdges(storeData.store_vertices);
@@ -115,6 +148,7 @@ const FloorplanPage = () => {
 		return map;
 	}, [inventory]);
 
+	// Draw SVG and markers
 	useEffect(() => {
 		const container = svgRef.current;
 		const tooltip = tooltipRef.current;
@@ -126,6 +160,18 @@ const FloorplanPage = () => {
 		svgEl.setAttribute('preserveAspectRatio', 'xMidYMid meet');
 		svgEl.setAttribute('width', '100%');
 		svgEl.setAttribute('height', '100%');
+
+		// Optional background overlay
+		if (bgOn) {
+			const img = document.createElementNS('http://www.w3.org/2000/svg', 'image');
+			img.setAttributeNS('http://www.w3.org/1999/xlink', 'href', '/data/roomba_map_1755306591410.jpeg');
+			img.setAttribute('x', viewBox.split(' ')[0]);
+			img.setAttribute('y', viewBox.split(' ')[1]);
+			img.setAttribute('width', viewBox.split(' ')[2]);
+			img.setAttribute('height', viewBox.split(' ')[3]);
+			img.setAttribute('opacity', '0.5');
+			svgEl.appendChild(img);
+		}
 
 		// Outer store poly (stroke black)
 		if (storeData.store_vertices?.length) {
@@ -139,7 +185,7 @@ const FloorplanPage = () => {
 
 		(storeData.polygons || []).forEach((poly) => {
 			const pts = (poly.polygon_vertices || []).map(pt => pt.join(',')).join(' ');
-			const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+        const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
 			polygon.setAttribute('points', pts);
 			polygon.setAttribute('fill', '#ffffff');
 			polygon.setAttribute('stroke', '#111827');
@@ -158,9 +204,9 @@ const FloorplanPage = () => {
 			hit.setAttribute('stroke-width', '12');
 			hit.style.cursor = 'pointer';
 			hit.addEventListener('mousemove', (e) => {
-				tooltip.style.opacity = '1';
-				tooltip.style.left = `${e.clientX + 15}px`;
-				tooltip.style.top = `${e.clientY + 15}px`;
+          tooltip.style.opacity = '1';
+          tooltip.style.left = `${e.clientX + 15}px`;
+          tooltip.style.top = `${e.clientY + 15}px`;
 				tooltip.textContent = `${f.id}`;
 			});
 			hit.addEventListener('mouseout', () => { tooltip.style.opacity = '0'; });
@@ -187,7 +233,7 @@ const FloorplanPage = () => {
 		});
 
 		container.appendChild(svgEl);
-	}, [storeData, faces, shoppingList, faceColors, viewBox]);
+	}, [storeData, faces, shoppingList, faceColors, viewBox, bgOn]);
 
 	const faceInfo = useMemo(() => {
 		if (!selectedFace) return null;
@@ -200,12 +246,12 @@ const FloorplanPage = () => {
 	};
 
 	const addItemToList = (desc) => {
-		const name = (desc || '').trim();
+		const name = sanitize(desc);
 		if (!name) return;
-		setShoppingList(prev => [{ id: `${name}-${Date.now()}`, name, quantity: 1 }, ...prev]);
+		setShoppingList(prev => [{ id: `${name}-${Date.now()}`, name, face_id: selectedFace?.id, quantity: 1 }, ...prev]);
 	};
 
-	return (
+  return (
 		<div className="container-fluid py-4 ge-floor">
 			<div className="row">
 				{/* Map left */}
@@ -214,7 +260,7 @@ const FloorplanPage = () => {
 						<div className="card-header d-flex justify-content-between align-items-center">
 							<h5 className="mb-0"><i className="fas fa-map me-2"></i>Store Floor Map</h5>
 							<div className="btn-group btn-group-sm">
-								<button className="btn btn-outline-secondary" onClick={() => setSelectedFace(null)}>Reset View</button>
+								<button className="btn btn-outline-secondary" onClick={() => setBgOn(prev => !prev)}>Toggle Background</button>
 							</div>
 						</div>
 						<div className="card-body text-center">
@@ -223,8 +269,8 @@ const FloorplanPage = () => {
 								<div ref={svgRef} id="store-canvas" style={{ width: '100%', height: '100%' }} />
 							</div>
 						</div>
-					</div>
-
+          </div>
+          
 					{/* Face info below map */}
 					<div className="card mt-3">
 						<div className="card-header">
@@ -254,11 +300,11 @@ const FloorplanPage = () => {
 									)}
 								</>
 							)}
-						</div>
-					</div>
-				</div>
-
-				{/* Shopping list right */}
+            </div>
+          </div>
+        </div>
+        
+				{/* Shopping list right (unified style) */}
 				<div className="col-lg-4">
 					<div className="card h-100">
 						<div className="card-header">
@@ -271,7 +317,10 @@ const FloorplanPage = () => {
 										<div key={it.id} className="d-flex align-items-center mb-3">
 											<div className="me-2" style={{ width: 16, height: 16, borderRadius: '50%', background: faceColors[it.face_id] || '#64748b' }} />
 											<div className="flex-grow-1">
-												<div className="fw-semibold small">{it.name}</div>
+												<div className="fw-semibold small d-flex align-items-center gap-2">
+													<img src={it.imageUrl || it.image_url || 'https://via.placeholder.com/32'} alt={it.name} width={32} height={32} style={{ borderRadius: 6, objectFit: 'cover' }} />
+													{it.name}
+												</div>
 												<small className="text-muted">{it.unit ? `$${it.price}/${it.unit}` : ''}</small>
 												<div className="mt-1 d-flex align-items-center gap-2">
 													<label className="text-muted small">Qty:</label>
@@ -285,21 +334,21 @@ const FloorplanPage = () => {
 															<option key={n} value={n}>{n}</option>
 														))}
 													</select>
-												</div>
-											</div>
+          </div>
+            </div>
 											<button className="btn btn-sm btn-outline-danger" onClick={() => setShoppingList(prev => prev.filter(p => p.id !== it.id))}><i className="fas fa-trash"></i></button>
-										</div>
+            </div>
 									))}
-								</div>
+            </div>
 							) : (
 								<div className="text-muted text-center">Your shopping list is empty.</div>
 							)}
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	);
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default FloorplanPage;
