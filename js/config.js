@@ -8,7 +8,7 @@ const GrocerEaseConfig = {
   services: {
     // Search Service (faissGrocerEase)
     search: {
-      baseURL: process.env.SEARCH_SERVICE_URL || 'http://localhost:8000',
+      baseURL: process.env.REACT_APP_SEARCH_API_URL || 'http://localhost:8000',
       endpoint: '/search/',
       timeout: 10000,
       retries: 3
@@ -16,7 +16,7 @@ const GrocerEaseConfig = {
     
     // Chat Service (grocer-ease-chatbot)
     chat: {
-      baseURL: process.env.CHAT_SERVICE_URL || 'http://localhost:8000',
+      baseURL: process.env.REACT_APP_API_URL || 'http://localhost:8000',
       endpoint: '/api/v1',
       timeout: 15000,
       retries: 2
