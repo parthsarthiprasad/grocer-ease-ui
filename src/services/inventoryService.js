@@ -18,3 +18,5 @@ export async function matchItems(shopId = 'shop_1', names = []) {
 	if (!res.ok) throw new Error(`Match fetch failed: ${res.status}`);
 	return res.json(); // { closest_matches: [string], next_best_matches: [array] }
 }
+
+
